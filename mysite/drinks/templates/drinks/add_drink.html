@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>飲み物登録</title>
+    
+    <!-- 静的ファイルを読み込む -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'drinks/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>飲み物登録</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label>飲み物名:</label>
+            <input type="text" name="name" required>
+            
+            <label>杯数:</label>
+            <input type="number" name="quantity" min="1" required>
+
+            <div class="button_wrapper">
+                <a href="{% url 'drink_list' %}" class="btn">戻る</a>
+                <button type="submit">登録</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

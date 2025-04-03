@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>飲み物リスト</title>
+    <!-- 静的ファイルを読み込む -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'drinks/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>飲み物リスト</h1>
+        <a href="{% url 'add_drink' %}" class="btn">新規登録</a>
+        <ul>
+            {% for drink in drinks %}
+            <li>
+                {{ drink.date }} - {{ drink.name }}: {{ drink.quantity }} 杯
+                <a href="{% url 'delete_drink' drink.id %}" class="btn">削除</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
