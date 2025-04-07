@@ -40,11 +40,19 @@ export default function Home() {
             <strong>場所:</strong> {party.location}<br />
             <strong>参加者:</strong> {party.participants}人
           </p>
-          <a href="#" className="btn btn-primary mt-auto">詳細を見る</a>
+          <a href={`drinkingPartyDetail/${party.id}`} className="btn btn-primary mt-auto">詳細を見る</a>
           </div>
         </div>
         </div>
       ))}
+      </div>
+      <h3 className="text-center">📅 カレンダー表示</h3>
+      <div className="calendar">
+        {mockParties.map((party) => (
+        <div key={party.id} className="calendar-event">
+          <strong>{party.date}</strong>: {party.title}
+        </div>
+        ))}
       </div>
     </div>
   );
