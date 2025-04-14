@@ -9,3 +9,5 @@ db.sqlite3
 
 # VS Code関連ファイル
 .vscode/
+
+.node_modules/
