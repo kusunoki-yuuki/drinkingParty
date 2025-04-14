@@ -20,4 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('drinks.urls')),  # アプリのルーティングを追加
+    path('/api', include('api.urls')),  # アプリのルーティングを追加
 ]
+
