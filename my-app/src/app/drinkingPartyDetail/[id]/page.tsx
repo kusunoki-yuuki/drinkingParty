@@ -2,6 +2,9 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { DrinkingParty } from '../../../types/drinkingPartyTypes';
 
 interface DrinkingPartyDetailProps {
     name: string;
@@ -9,6 +12,54 @@ interface DrinkingPartyDetailProps {
     location: string;
     description: string;
 }
+
+const Page = () => {
+    const { id } = useParams<{ id: string }>();
+    const [partyDetail, setPartyDetail] = useState<DrinkingParty | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchPartyDetail = async () => {
+            try {
+                const response = await axios.get<DrinkingParty>(
+                    `/api/drinking-parties/${id}`
+                );
+                setPartyDetail(response.data);
+            } catch (err) {
+                setError('飲み会の詳細を取得できませんでした。');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchPartyDetail();
+        }
+    }, [id]);
+
+    if (loading) {
+        return <div>読み込み中...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+    if (!partyDetail) {
+        return <div>該当する飲み会が見つかりません。</div>;
+    }
+
+    return (
+        <DrinkingPartyDetail
+            name={partyDetail.drinking_party_name}
+            date={partyDetail.date}
+            location={partyDetail.location}
+            description={partyDetail.remarks}
+        />
+    );
+};
+export default Page;
 
 const DrinkingPartyDetail: React.FC<DrinkingPartyDetailProps> = ({
     name,
@@ -37,41 +88,4 @@ const DrinkingPartyDetail: React.FC<DrinkingPartyDetailProps> = ({
     );
 };
 
-// サンプルデータ
-const sampleData = [
-    {
-        id: 1,
-        name: '新年会',
-        date: '2023-12-31',
-        location: '新宿居酒屋',
-        description: '楽しい新年会をしましょう！',
-    },
-    {
-        id: 2,
-        name: '忘年会',
-        date: '2023-12-15',
-        location: '渋谷カフェ',
-        description: '今年を締めくくる忘年会！',
-    },
-];
 
-const Page = () => {
-    const { id } = useParams<{ id: string }>(); // useParamsを使用してURLパラメータを取得
-
-    // IDが取得できない場合の処理
-    if (!id) {
-        return <div>Loading...</div>;
-    }
-
-    // IDに基づいてデータを取得
-    const partyDetail = sampleData.find((party) => party.id === Number(id));
-
-    // 該当するデータがない場合の処理
-    if (!partyDetail) {
-        return <div>該当する飲み会が見つかりません。</div>;
-    }
-
-    return <DrinkingPartyDetail {...partyDetail} />;
-};
-
-export default Page;

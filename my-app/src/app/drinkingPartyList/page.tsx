@@ -11,16 +11,25 @@ type DrinkingParty = {
   location: string;
   participants: number;
 };
-
 export default function Home() {
   const [mockParties, setMockParties] = useState<DrinkingParty[]>([]);
 
   useEffect(() => {
     const fetchDrinkingParties = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/drinkPartyList');
-        console.log('取得した飲み会リスト:', response);
-        setMockParties(response.data);
+        const response = await axios.get('http://localhost:8000/api/drinkPartyList');
+        console.log('取得した飲み会リスト:', response.data);
+        
+        // レスポンスデータを型に合わせてセット
+        const formattedParties: DrinkingParty[] = response.data.map((party: any) => ({
+          drinking_party_id: party.drinking_party_id,
+          drinking_party_name: party.drinking_party_name,
+          date: party.date,
+          location: party.location,
+          participants: party.participants,
+        }));
+        
+        setMockParties(formattedParties);
       } catch (error) {
         console.error('飲み会リストの取得中にエラーが発生しました:', error);
       }

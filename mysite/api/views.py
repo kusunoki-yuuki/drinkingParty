@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 # from .models import Drink
 from django.utils.timezone import now
 from .models import DrinkingParty
+from .models import DrinkingPartyPayment
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -29,6 +30,49 @@ def drinkPartyList(request):
                 }
             )
         return JsonResponse(drinkingParty_list, safe=False)
+    else:
+        # GET以外のリクエストは許可しない
+        return JsonResponse(
+            {"エラー": "このエンドポイントはGETリクエストのみ対応しています。"},
+            status=405,
+        )
+
+
+def drinkPartyDetail(request):
+    if request.method == "GET":
+        # 引数のidからdrinkingDetail画面に表示に必要な情報を取得
+        id = 1
+        drinkingParty = (
+            DrinkingParty.objects.filter(drinking_party_id=id).values().first()
+        )
+
+        drinkingPartyPayments = DrinkingPartyPayment.objects.filter(
+            drinking_party_id=drinkingParty["drinking_party_id"]
+        ).values()
+
+        # DrinkingPartyモデルのデータを整形してリストに変換
+        drinkingDetail_list = []
+        drinkingDetail_list.append(
+            {
+                "drinking_party_id": drinkingParty["drinking_party_id"],
+                "drinking_party_name": drinkingParty["drinking_party_name"],
+                "date": drinkingParty["date"].strftime("%Y-%m-%d"),
+                "location": drinkingParty["location"],
+                "remarks": drinkingParty["remarks"],
+                "participants": [
+                    {
+                        "user_id": payment["user_id"],
+                        "fee": payment["fee"],
+                        "is_paid": payment["is_paid"],
+                        "is_advance_payment": payment["is_advance_payment"],
+                        "remarks": payment["remarks"],
+                    }
+                    for payment in drinkingPartyPayments
+                ],
+            }
+        )
+
+        return JsonResponse(drinkingDetail_list, safe=False)
     else:
         # GET以外のリクエストは許可しない
         return JsonResponse(
