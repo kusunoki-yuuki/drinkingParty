@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from .models import DrinkingParty
 from .models import DrinkingPartyPayment
+from .models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -20,13 +21,16 @@ def drinkPartyList(request):
         # DrinkingPartyモデルのデータを整形してリストに変換
         drinkingParty_list = []
         for drinkingParty in drinkingPartys:
+            participant_count = DrinkingPartyPayment.objects.filter(
+                drinking_party_id=drinkingParty["drinking_party_id"]
+            ).count()
             drinkingParty_list.append(
                 {
                     "drinking_party_id": drinkingParty["drinking_party_id"],
                     "drinking_party_name": drinkingParty["drinking_party_name"],
                     "date": drinkingParty["date"].strftime("%Y-%m-%d"),
                     "location": drinkingParty["location"],
-                    "participants": 10,
+                    "participants": participant_count,
                 }
             )
         return JsonResponse(drinkingParty_list, safe=False)
@@ -38,10 +42,9 @@ def drinkPartyList(request):
         )
 
 
-def drinkPartyDetail(request):
+def drinkPartyDetail(request, id):
     if request.method == "GET":
         # 引数のidからdrinkingDetail画面に表示に必要な情報を取得
-        id = 1
         drinkingParty = (
             DrinkingParty.objects.filter(drinking_party_id=id).values().first()
         )
@@ -49,28 +52,26 @@ def drinkPartyDetail(request):
         drinkingPartyPayments = DrinkingPartyPayment.objects.filter(
             drinking_party_id=drinkingParty["drinking_party_id"]
         ).values()
-
         # DrinkingPartyモデルのデータを整形してリストに変換
-        drinkingDetail_list = []
-        drinkingDetail_list.append(
-            {
-                "drinking_party_id": drinkingParty["drinking_party_id"],
-                "drinking_party_name": drinkingParty["drinking_party_name"],
-                "date": drinkingParty["date"].strftime("%Y-%m-%d"),
-                "location": drinkingParty["location"],
-                "remarks": drinkingParty["remarks"],
-                "participants": [
-                    {
-                        "user_id": payment["user_id"],
-                        "fee": payment["fee"],
-                        "is_paid": payment["is_paid"],
-                        "is_advance_payment": payment["is_advance_payment"],
-                        "remarks": payment["remarks"],
-                    }
-                    for payment in drinkingPartyPayments
-                ],
-            }
-        )
+        # drinkingDetail_list = []
+        drinkingDetail_list = {
+            "drinking_party_id": drinkingParty["drinking_party_id"],
+            "drinking_party_name": drinkingParty["drinking_party_name"],
+            "date": drinkingParty["date"].strftime("%Y-%m-%d"),
+            "location": drinkingParty["location"],
+            "remarks": drinkingParty["remarks"],
+            "participants": [
+                {
+                    "user_id": payment["user_id"],
+                    "user_name": User.objects.get(id=payment["user_id"]).user_name,
+                    "fee": payment["fee"],
+                    "is_paid": payment["is_paid"],
+                    "is_advance_payment": payment["is_advance_payment"],
+                    "remarks": payment["remarks"],
+                }
+                for payment in drinkingPartyPayments
+            ],
+        }
 
         return JsonResponse(drinkingDetail_list, safe=False)
     else:

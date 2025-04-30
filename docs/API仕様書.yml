@@ -1,0 +1,54 @@
+openapi: 3.0.0
+
+info:
+  title: 飲み会一覧取得API
+  description: 飲み会の一覧を取得するためのAPIです。`DrinkingParty`モデルから全件取得し、整形したデータをJSON形式で返します。
+  version: "1.0.0"
+
+paths:
+  /api/drinkPartyList:
+    get:
+      summary: 飲み会一覧取得
+      description: 飲み会の一覧を取得します。
+      responses:
+        '200':
+          description: 正常に飲み会一覧を取得しました。
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    drinking_party_id:
+                      type: integer
+                      description: 飲み会のID
+                      example: 1
+                    drinking_party_name:
+                      type: string
+                      description: 飲み会の名前
+                      example: 新年会
+                    date:
+                      type: string
+                      format: date
+                      description: 飲み会の日付
+                      example: "2023-01-01"
+                    location:
+                      type: string
+                      description: 飲み会の場所
+                      example: 東京
+                    participants:
+                      type: integer
+                      description: 参加者数
+                      example: 10
+        '405':
+          description: 許可されていないメソッドが使用されました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  エラー:
+                    type: string
+                    description: エラーメッセージ
+                    example: このエンドポイントはGETリクエストのみ対応しています。
